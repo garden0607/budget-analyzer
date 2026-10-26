@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: budget-mysql
+    environment:
+      MYSQL_DATABASE: budget
+      MYSQL_ROOT_PASSWORD: root1234
+      TZ: Asia/Seoul
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
