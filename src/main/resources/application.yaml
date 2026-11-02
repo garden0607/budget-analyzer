@@ -1,13 +1,11 @@
 spring:
   application:
     name: budget
-
   datasource:
     url: jdbc:mysql://localhost:3307/budget?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: root1234
     driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -15,3 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+jwt:
+  secret: budget-analyzer-capstone-jwt-secret-key-2026-must-be-long-enough
+  expiration: 3600000
