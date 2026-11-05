@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;                       // 검�
 import org.springframework.web.bind.MethodArgumentNotValidException;    // @Valid 검증 실패 시 나는 예외
 import org.springframework.web.bind.annotation.ExceptionHandler;        // "이 예외는 이 메서드가 처리" 표시
 import org.springframework.web.bind.annotation.RestControllerAdvice;    // 모든 Controller의 예외를 한곳에서 처리
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException; // ★ 추가: 주소 값 타입 변환 실패 예외
 
 // Controller·Service에서 난 예외를 받아서 { code, message } JSON으로 바꿔 응답하는 곳
 @Slf4j                   // log 변수 자동 생성
@@ -37,7 +38,14 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(ErrorCode.INVALID_INPUT));                // 기본 문구로 응답
     }
 
-    // 4. 예상하지 못한 나머지 모든 예외
+    // 4. 주소 값의 타입이 잘못된 요청 (?type=ABC, /api/categories/abc 등)  ★ 추가
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)                 // 주소 값을 enum·숫자로 못 바꾸면 이 메서드 실행
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return ResponseEntity.status(ErrorCode.INVALID_INPUT.getStatus())        // 400 (사용자가 잘못 보낸 것이라 500이 아님)
+                .body(ErrorResponse.of(ErrorCode.INVALID_INPUT));                // 기본 문구로 응답
+    }
+
+    // 5. 예상하지 못한 나머지 모든 예외
     @ExceptionHandler(Exception.class)                                           // 위에서 안 잡힌 모든 예외가 여기로
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception e) {
         log.error("예상하지 못한 오류", e);                                       // 원인을 찾을 수 있게 콘솔에 자세히 기록
