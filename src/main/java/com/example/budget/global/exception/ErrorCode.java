@@ -10,7 +10,8 @@ public enum ErrorCode {
 
     // 공통
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
-    INVALID_TRANSACTION_DATE(HttpStatus.BAD_REQUEST, "거래일은 오늘부터 1년 이내로 입력해 주세요."),   // 400 거래일이 1년보다 먼 미래
+    INVALID_TRANSACTION_DATE(HttpStatus.BAD_REQUEST, "거래일은 오늘부터 1년 이내로 입력해 주세요."), // 400 거래일이 1년보다 먼 미래
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "시작일은 종료일보다 늦을 수 없습니다."),   // 400 기간이 거꾸로
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 
     // 인증 (FR-01, 02)
