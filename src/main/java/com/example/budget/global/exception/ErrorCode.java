@@ -28,7 +28,8 @@ public enum ErrorCode {
 
     // 카테고리 (FR-04)
     DUPLICATE_CATEGORY(HttpStatus.CONFLICT, "이미 있는 카테고리입니다."),
-    CATEGORY_IN_USE(HttpStatus.CONFLICT, "사용 중인 카테고리는 삭제할 수 없습니다.");
+    CATEGORY_IN_USE(HttpStatus.CONFLICT, "사용 중인 카테고리는 삭제할 수 없습니다."),
+    BUDGET_EXPENSE_ONLY(HttpStatus.BAD_REQUEST, "예산은 지출 카테고리에만 설정할 수 있습니다.");  // 400 수입 카테고리에 예산 설정 시도
 
     private final HttpStatus status;
     private final String message;
