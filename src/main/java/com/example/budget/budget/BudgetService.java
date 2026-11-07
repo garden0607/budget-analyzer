@@ -13,19 +13,21 @@ import lombok.RequiredArgsConstructor;                         // final 필드 �
 import org.springframework.stereotype.Service;                 // Service 표시
 import org.springframework.transaction.annotation.Transactional; // 트랜잭션
 
-import java.util.Optional;   // 있을 수도 없을 수도 있는 값
+import java.time.YearMonth;   // ★ 추가: "2026-11" 글자 → 연·월 객체로 바꾸기
+import java.util.Optional;    // 있을 수도 없을 수도 있는 값
 
 @Service                        // 스프링이 Service로 등록·관리
 @RequiredArgsConstructor        // final 필드를 받는 생성자 자동 생성
 @Transactional(readOnly = true) // 기본은 읽기 전용
 public class BudgetService {
 
-    private final BudgetRepository budgetRepository;       // 예산 DB 작업
-    private final CategoryRepository categoryRepository;   // 카테고리 DB 작업
-    private final UserRepository userRepository;           // 회원 DB 작업
+    private final BudgetRepository budgetRepository;         // 예산 DB 작업
+    private final CategoryRepository categoryRepository;     // 카테고리 DB 작업
+    private final UserRepository userRepository;             // 회원 DB 작업
+    private final BudgetUsageService budgetUsageService;     // ★ 추가: 사용률 재계산 + 알림 판정
 
     // ───────────── 예산 설정 (FR-09) ─────────────
-    @Transactional   // 저장하므로 읽기 전용 해제
+    @Transactional   // 저장하므로 읽기 전용 해제 (recalculate도 이 트랜잭션에 합류)
     public BudgetResponse setBudget(Long userId, BudgetRequest request) {
 
         // 1. 본인 카테고리인지 확인 (남의 것이면 404)
@@ -37,29 +39,30 @@ public class BudgetService {
             throw new BusinessException(ErrorCode.BUDGET_EXPENSE_ONLY);
         }
 
-        // 3. 같은 카테고리·같은 월 예산이 이미 있는지 찾기
+        // 3. 같은 카테고리·같은 월 예산이 있으면 수정, 없으면 생성
         Optional<Budget> existing = budgetRepository.findByCategoryIdAndBudgetMonth(
                 category.getId(), request.budgetMonth());
 
         Budget budget;
-        if (existing.isPresent()) {                       // 있으면
-            budget = existing.get();                      //   그 예산을 꺼내서
-            budget.changeAmount(request.amount());        //   금액만 수정 (변경 감지로 자동 UPDATE)
-        } else {                                          // 없으면
-            User user = userRepository.findById(userId)   //   주인 회원 찾고
+        if (existing.isPresent()) {
+            budget = existing.get();
+            budget.changeAmount(request.amount());        // 금액만 수정
+        } else {
+            User user = userRepository.findById(userId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-            budget = Budget.builder()                     //   새 예산 만들기
-                    .user(user)                           //     주인 회원
-                    .category(category)                   //     카테고리
-                    .budgetMonth(request.budgetMonth())   //     적용 월 "2026-11"
-                    .amount(request.amount())             //     예산 금액
-                    .build();                             //     상태는 NORMAL로 시작 (엔티티 생성자에서)
-            budgetRepository.save(budget);                //   budgets 테이블에 INSERT
+            budget = Budget.builder()
+                    .user(user)
+                    .category(category)
+                    .budgetMonth(request.budgetMonth())
+                    .amount(request.amount())
+                    .build();                             // 상태는 NORMAL로 시작
+            budgetRepository.save(budget);
         }
 
-        // TODO(10주차 2일차): 이 (카테고리, 월)의 사용률 재계산 + 알림 판정
-        //   예: 이미 9만 원 쓴 상태에서 예산 8만 원 → 바로 EXCEEDED + 초과 알림
+        // 4. ★ 추가: 이 (카테고리, 월)의 사용률 재계산 + 알림 판정
+        //    예: 이미 9만 원 쓴 상태에서 예산 8만 원 → 112% → EXCEEDED + 초과 알림
+        budgetUsageService.recalculate(category, YearMonth.parse(request.budgetMonth()));   // "2026-11" → YearMonth
 
-        return BudgetResponse.from(budget);   // 설정된 예산과 현재 상태를 돌려줌
+        return BudgetResponse.from(budget);   // 재계산된 상태까지 담아서 돌려줌
     }
 }
