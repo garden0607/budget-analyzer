@@ -13,4 +13,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long countByUserIdAndIsReadFalse(Long userId);                       // 내 안 읽은 알림 개수 → 🔔 숫자 표시
 
     Optional<Notification> findByIdAndUserId(Long id, Long userId);      // 내 알림만 찾기 → 읽음 처리 시 남의 알림 차단
+    List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(Long userId);   // 내 안 읽은 알림만 최신순 → "안 읽은 것만 보기"
 }

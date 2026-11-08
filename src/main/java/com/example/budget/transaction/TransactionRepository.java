@@ -3,6 +3,8 @@ package com.example.budget.transaction;   // transaction 패키지
 import com.example.budget.category.TransactionType;          // 수입/지출 enum (검색 조건)
 import org.springframework.data.domain.Page;                 // 페이지 결과
 import org.springframework.data.domain.Pageable;             // 페이지 요청
+import com.example.budget.transaction.dto.CategorySpending;   // 카테고리별 합계 상자
+import java.util.List;                                        // 여러 개 결과
 import org.springframework.data.jpa.repository.JpaRepository;   // 기본 저장·조회 기능
 import org.springframework.data.jpa.repository.Query;        // JPQL 직접 작성
 import org.springframework.data.repository.query.Param;      // 쿼리의 :이름 빈칸에 값 연결
@@ -65,4 +67,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Long sumByCategoryAndPeriod(@Param("categoryId") Long categoryId,    // 어느 카테고리 (예: 식비)
                                 @Param("startDate") LocalDate startDate, // 그 달 1일 (예: 2026-11-01)
                                 @Param("endDate") LocalDate endDate);    // 그 달 말일 (예: 2026-11-30)
+    // 회원의 기간 내 지출을 카테고리별로 묶어 합계 → 예산 사용 현황용 (FR-10)
+    @Query("""
+            SELECT new com.example.budget.transaction.dto.CategorySpending(t.category.id, SUM(t.amount))
+            FROM Transaction t
+            WHERE t.user.id = :userId
+              AND t.transactionDate BETWEEN :startDate AND :endDate
+              AND t.category.type = com.example.budget.category.TransactionType.EXPENSE
+            GROUP BY t.category.id
+            """)
+    List<CategorySpending> sumExpenseByCategory(@Param("userId") Long userId,            // 내 거래만
+                                                @Param("startDate") LocalDate startDate, // 그 달 1일
+                                                @Param("endDate") LocalDate endDate);    // 그 달 말일
 }
