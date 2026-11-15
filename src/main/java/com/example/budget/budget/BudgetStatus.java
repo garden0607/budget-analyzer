@@ -20,7 +20,7 @@ public enum BudgetStatus {
         return NORMAL;                      // 그 밖
     }
 
-    // 이 상태가 다른 상태보다 더 위험한지 (알림을 보낼지 판단할 때 사용)
+    // 새 상태가 이전 상태보다 더 위험한지 (알림을 보낼지 판단할 때 사용)
     public boolean isMoreSevereThan(BudgetStatus other) {
         return this.ordinal() > other.ordinal();   // ordinal(): 선언 순서 번호 (NORMAL 0, WARNING 1, EXCEEDED 2)
     }
