@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">   <!-- th: 문법 사용 선언 -->
+
+<!-- 공통 head 도장 찍기: 탭 제목 빈칸에 '홈' 전달 → "홈 - 소비 분석 가계부" -->
+<head th:replace="~{fragments/layout :: head('홈')}"></head>
+
+<body>
+<!-- 공통 헤더 도장 찍기: 메뉴, 🔔, 로그아웃 -->
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">                                  <!-- 가운데 정렬된 본문 영역 (common.css) -->
+    <div class="card">                                    <!-- 흰 상자 (common.css) -->
+        <h2>홈</h2>
+        <p>공통 레이아웃 확인용 임시 화면입니다. 이후 대시보드로 바꿀 예정입니다.</p>
+    </div>
+</main>
+</body>
+</html>

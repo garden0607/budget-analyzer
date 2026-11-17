@@ -34,7 +34,9 @@ public class SecurityConfig {
                 // 2. 주소별 접근 규칙 (위에서부터 순서대로 검사)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()  // Swagger: 누구나
-                        .requestMatchers("/api/auth/**").permitAll()                       // 회원가입·로그인: 누구나 (아직 토큰이 없으니까)
+                        .requestMatchers("/api/auth/**").permitAll()// 회원가입·로그인: 누구나 (아직 토큰이 없으니까)
+                        .requestMatchers("/", "/login", "/signup", "/error").permitAll()  // 화면 틀(HTML)은 토큰 없이 열림. 데이터는 API에서 보호
+                        .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll() // 정적 파일(CSS·JS·아이콘)도 토큰 없이 받을 수 있게
                         .requestMatchers("/api/**").authenticated()                        // 나머지 API: 로그인 필요
                         .anyRequest().permitAll())                                         // 화면(HTML): 누구나 (데이터는 API가 지킴)
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!-- xmlns:th: 이 파일에서 th: 로 시작하는 Thymeleaf 문법을 쓰겠다는 선언 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ① 공통 head 조각: 각 화면이 제목만 넘기면 나머지는 똑같이 채워짐 -->
+<head th:fragment="head(title)">                                    <!-- 조각 이름 head, 받는 값 title -->
+    <meta charset="UTF-8">                                          <!-- 한글이 깨지지 않게 UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- 휴대폰에서도 화면 폭에 맞게 -->
+    <title th:text="|${title} - 소비 분석 가계부|">소비 분석 가계부</title> <!-- 탭 제목: "로그인 - 소비 분석 가계부" -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">            <!-- 공통 CSS (5단계에서 만듦) -->
+    <script th:src="@{/js/api.js}" defer></script>                  <!-- 공통 JS (6단계). defer: HTML을 다 읽은 뒤 실행 -->
+</head>
+
+<body>
+<!-- ② 공통 헤더 조각 (C-01): 로그인 후 화면 맨 위에 붙음 -->
+<header th:fragment="header" class="app-header">                    <!-- 조각 이름 header -->
+    <a th:href="@{/}" class="logo">소비 분석 가계부</a>              <!-- 로고: 누르면 첫 화면으로 -->
+
+    <nav class="menu">                                              <!-- 화면 이동 메뉴 -->
+        <a th:href="@{/}">홈</a>
+        <a th:href="@{/transactions}">거래 내역</a>
+        <a th:href="@{/budgets}">예산</a>
+        <a th:href="@{/statistics}">통계</a>
+        <a th:href="@{/categories}">카테고리</a>
+    </nav>
+
+    <div class="header-right">                                      <!-- 오른쪽: 알림·로그아웃 -->
+        <a th:href="@{/notifications}" class="bell">                <!-- 🔔 누르면 알림 화면으로 -->
+            🔔<span id="unread-count" class="badge" hidden>0</span> <!-- 안 읽은 개수. JS가 채우고, 0이면 숨김 -->
+        </a>
+        <button type="button" id="logout-btn" class="btn-link">로그아웃</button> <!-- 동작은 6단계 JS에서 연결 -->
+    </div>
+</header>
+</body>
+</html>
