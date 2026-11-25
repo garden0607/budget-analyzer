@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/signup", "/error").permitAll()  // 화면 틀(HTML)은 토큰 없이 열림. 데이터는 API에서 보호
                         .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll() // 정적 파일(CSS·JS·아이콘)도 토큰 없이 받을 수 있게
                         .requestMatchers("/api/**").authenticated()                        // 나머지 API: 로그인 필요
+                        .requestMatchers("/", "/login", "/signup", "/categories", "/error").permitAll()  // 화면 틀(HTML)은 토큰 없이 열림. 데이터는 API에서 보호
                         .anyRequest().permitAll())                                         // 화면(HTML): 누구나 (데이터는 API가 지킴)
 
                 // 3. 로그인 안 한 사람이 API 요청 시 → 401 JSON 응답

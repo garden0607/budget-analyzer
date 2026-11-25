@@ -20,4 +20,8 @@ public class PageController {                         // 화면 주소 → HTML 
     public String signup() {
         return "signup";                              // templates/signup.html (3일차에 만듦)
     }
+    @GetMapping("/categories")                        // 카테고리 관리 화면 주소 (S-08)
+    public String categories() {
+        return "categories";                          // templates/categories.html (2단계에서 만듦)
+    }
 }

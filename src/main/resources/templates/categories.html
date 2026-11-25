@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">            <!-- th: 문법 사용 선언 -->
+
+<!-- 공통 head 도장: 탭 제목 "카테고리 - 소비 분석 가계부" -->
+<head th:replace="~{fragments/layout :: head('카테고리')}"></head>
+
+<body>
+<!-- 공통 헤더 도장: 로그인 후 화면이라 메뉴·🔔·로그아웃 표시 + 토큰 없으면 로그인 화면으로 -->
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">                                         <!-- 가운데 정렬된 본문 영역 -->
+
+    <!-- ① 카테고리 추가 -->
+    <div class="card">
+        <h2>카테고리 관리</h2>
+        <form id="add-form" class="inline-form" novalidate>       <!-- 한 줄로 늘어선 입력 form (CSS는 다음 단계) -->
+            <select id="add-type">                               <!-- 구분 선택 상자: 글자 대신 골라서 오타 방지 -->
+                <option value="EXPENSE">지출</option>             <!-- value: 서버로 보낼 값, 글자: 화면에 보일 값 -->
+                <option value="INCOME">수입</option>
+            </select>
+            <input type="text" id="add-name"
+                   placeholder="새 카테고리 이름" maxlength="20"> <!-- DTO 규칙: 20자 이하 -->
+            <button type="submit" class="btn btn-primary">추가</button> <!-- 누르면 form 제출 → JS가 가로챔 -->
+        </form>
+        <p id="error-msg" class="error-msg"></p>                  <!-- 추가·수정·삭제 실패 문구 자리 -->
+    </div>
+
+    <!-- ② 지출 카테고리 목록 -->
+    <div class="card" style="margin-top: 16px;">
+        <h3>지출 카테고리</h3>
+        <table class="table">                                    <!-- 표 (CSS는 다음 단계) -->
+            <thead>                                              <!-- 표 머리(제목 줄) -->
+            <tr><th>이름</th><th class="col-actions">관리</th></tr>
+            </thead>
+            <tbody id="expense-list"></tbody>                    <!-- 표 몸통: 비워 두고 JS가 지출 카테고리 줄을 채움 -->
+        </table>
+    </div>
+
+    <!-- ③ 수입 카테고리 목록 -->
+    <div class="card" style="margin-top: 16px;">
+        <h3>수입 카테고리</h3>
+        <table class="table">
+            <thead>
+            <tr><th>이름</th><th class="col-actions">관리</th></tr>
+            </thead>
+            <tbody id="income-list"></tbody>                     <!-- JS가 수입 카테고리 줄을 채움 -->
+        </table>
+    </div>
+</main>
+
+<script th:src="@{/js/categories.js}" defer></script>             <!-- 카테고리 화면 동작 JS (4단계에서 만듦) -->
+</body>
+</html>
