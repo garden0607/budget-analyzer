@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">               <!-- th: 문법 사용 선언 -->
+
+<!-- 공통 head 도장: 탭 제목 "거래 내역 - 소비 분석 가계부" -->
+<head th:replace="~{fragments/layout :: head('거래 내역')}"></head>
+
+<body>
+<!-- 공통 헤더 도장: 메뉴·🔔·로그아웃 + 토큰 없으면 로그인 화면으로 -->
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+
+    <!-- ① 제목 + 검색 + 합계 -->
+    <div class="card">
+        <div class="page-header">                                   <!-- 제목과 등록 버튼을 양쪽 끝에 배치 (CSS는 다음 단계) -->
+            <h2>거래 내역</h2>
+            <button type="button" id="open-create" class="btn btn-primary">거래 등록</button> <!-- 누르면 등록 모달 (6단계) -->
+        </div>
+
+        <!-- 검색 조건 form: 날짜 2개, 카테고리, 구분 -->
+        <form id="search-form" class="inline-form" novalidate>
+            <input type="date" id="search-start">                   <!-- 시작일: 달력으로 고르고, 값은 "2026-11-01" 형식 -->
+            <span class="range-sep">~</span>                        <!-- 기간 사이 물결 표시 -->
+            <input type="date" id="search-end">                     <!-- 종료일 -->
+            <select id="search-category">                           <!-- 카테고리: JS가 내 카테고리로 채움 -->
+                <option value="">전체 카테고리</option>              <!-- value가 빈 글자면 "조건 없음" -->
+            </select>
+            <select id="search-type">                               <!-- 구분 -->
+                <option value="">전체</option>
+                <option value="INCOME">수입</option>
+                <option value="EXPENSE">지출</option>
+            </select>
+            <button type="submit" class="btn btn-primary">조회</button> <!-- 누르면 조건으로 다시 검색 (4단계) -->
+        </form>
+
+        <!-- 합계 줄: JS가 숫자를 채움 -->
+        <p class="summary">
+            수입 <strong id="income-total" class="amount-income">0원</strong>
+            · 지출 <strong id="expense-total" class="amount-expense">0원</strong>
+            · 합계 <strong id="net-total">0원</strong>
+            <span id="total-count" class="muted"></span>             <!-- "(총 45건)" -->
+        </p>
+
+        <p id="error-msg" class="error-msg"></p>                     <!-- 실패 문구 자리 -->
+    </div>
+
+    <!-- ② 거래 목록 표 + 페이지 버튼 -->
+    <div class="card" style="margin-top: 16px;">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>날짜</th>
+                <th>카테고리</th>
+                <th>메모</th>
+                <th class="text-right">금액</th>                 <!-- 금액은 오른쪽 정렬 (숫자 자릿수 맞추기) -->
+                <th class="col-actions">관리</th>
+            </tr>
+            </thead>
+            <tbody id="transaction-list"></tbody>                    <!-- JS가 거래 줄을 채움 -->
+        </table>
+
+        <div class="pagination">                                     <!-- 페이지 버튼 묶음 (CSS는 다음 단계) -->
+            <button type="button" id="prev-page" class="btn btn-sm btn-outline">이전</button>
+            <span id="page-info" class="muted"></span>               <!-- "1 / 3 페이지" -->
+            <button type="button" id="next-page" class="btn btn-sm btn-outline">다음</button>
+        </div>
+    </div>
+</main>
+<!-- ③ 거래 등록·수정 모달 (처음엔 hidden으로 숨김, JS가 열고 닫음) -->
+<div id="tx-modal" class="modal" hidden>                             <!-- 화면 전체를 덮는 반투명 막 -->
+    <div class="modal-box">                                          <!-- 가운데 흰 입력 창 -->
+        <h3 id="modal-title">거래 등록</h3>                           <!-- 등록/수정에 따라 JS가 제목을 바꿈 -->
+
+        <form id="tx-form" novalidate>
+            <div class="form-group">
+                <label for="tx-category">카테고리</label>
+                <select id="tx-category"></select>                    <!-- JS가 지출/수입 묶음으로 채움 (수입/지출 구분은 카테고리를 따름) -->
+            </div>
+
+            <div class="form-group">
+                <label for="tx-amount">금액</label>
+                <input type="number" id="tx-amount"
+                       min="1" max="10000000" placeholder="원 단위로 입력"> <!-- 숫자만 입력. DTO: 1 ~ 1,000만 원 -->
+            </div>
+
+            <div class="form-group">
+                <label for="tx-date">날짜</label>
+                <input type="date" id="tx-date">                      <!-- 등록 땐 오늘 날짜가 기본값 (JS) -->
+            </div>
+
+            <div class="form-group">
+                <label for="tx-memo">메모 (선택)</label>
+                <input type="text" id="tx-memo" maxlength="100"
+                       placeholder="예: 점심, 버스">                   <!-- DTO: 100자 이하 -->
+            </div>
+
+            <p id="modal-error" class="error-msg"></p>                 <!-- 모달 안의 에러 문구 자리 -->
+
+            <div class="modal-actions">                               <!-- 버튼 묶음 (오른쪽 정렬) -->
+                <button type="button" id="modal-cancel" class="btn btn-outline">취소</button> <!-- 닫기만 함 -->
+                <button type="submit" class="btn btn-primary">저장</button>                    <!-- form 제출 → JS가 등록/수정 -->
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/transactions.js}" defer></script>              <!-- 거래 화면 동작 JS (4단계에서 만듦) -->
+</body>
+</html>

@@ -24,4 +24,8 @@ public class PageController {                         // 화면 주소 → HTML 
     public String categories() {
         return "categories";                          // templates/categories.html (2단계에서 만듦)
     }
+    @GetMapping("/transactions")                      // 거래 내역 화면 주소 (S-04, 등록·수정 모달 S-05 포함)
+    public String transactions() {
+        return "transactions";                        // templates/transactions.html (2단계에서 만듦)
+    }
 }
