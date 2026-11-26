@@ -1,18 +1,67 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">   <!-- th: 문법 사용 선언 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">               <!-- th: 문법 사용 선언 -->
 
-<!-- 공통 head 도장 찍기: 탭 제목 빈칸에 '홈' 전달 → "홈 - 소비 분석 가계부" -->
+<!-- 공통 head 도장: 탭 제목 "홈 - 소비 분석 가계부" -->
 <head th:replace="~{fragments/layout :: head('홈')}"></head>
 
 <body>
-<!-- 공통 헤더 도장 찍기: 메뉴, 🔔, 로그아웃 -->
+<!-- 공통 헤더 도장 -->
 <header th:replace="~{fragments/layout :: header}"></header>
 
-<main class="container">                                  <!-- 가운데 정렬된 본문 영역 (common.css) -->
-    <div class="card">                                    <!-- 흰 상자 (common.css) -->
-        <h2>홈</h2>
-        <p>공통 레이아웃 확인용 임시 화면입니다. 이후 대시보드로 바꿀 예정입니다.</p>
+<main class="container">
+
+    <!-- ① 제목 -->
+    <div class="card">
+        <div class="page-header" style="margin-bottom: 0;">
+            <h2 id="dash-title">이번 달 요약</h2>                    <!-- JS가 "2026년 11월 요약"으로 바꿈 -->
+            <a th:href="@{/transactions}" class="btn btn-primary">거래 내역 →</a> <!-- 바로 거래 화면으로 -->
+        </div>
+        <p id="error-msg" class="error-msg"></p>                     <!-- 실패 문구 자리 -->
+    </div>
+
+    <!-- ② 요약 카드 3개 (통계 화면 CSS 재사용) -->
+    <div class="stat-cards">
+        <div class="card stat-card">
+            <span class="muted">수입</span>
+            <strong id="sum-income" class="amount-income">0원</strong>
+        </div>
+        <div class="card stat-card">
+            <span class="muted">지출</span>
+            <strong id="sum-expense" class="amount-expense">0원</strong>
+        </div>
+        <div class="card stat-card">
+            <span class="muted">잔액</span>
+            <strong id="sum-balance">0원</strong>
+        </div>
+    </div>
+
+    <!-- ③ 예산 현황 + 최근 거래 나란히 -->
+    <div class="grid-2">
+        <div class="card">                                           <!-- 예산 현황 -->
+            <div class="page-header">
+                <h3 style="margin: 0;">예산 현황</h3>
+                <a th:href="@{/budgets}" class="muted">예산 관리 →</a>
+            </div>
+            <div class="usage" style="margin-top: 0;">                <!-- 전체 사용률 막대 (예산 화면 CSS 재사용) -->
+                <span style="width: 56px;">전체</span>
+                <div class="usage-bar"><div id="dash-total-bar" class="usage-fill"></div></div>
+                <span id="dash-total-rate" class="usage-rate" style="min-width: 80px;"></span> <!-- 아래 줄들과 숫자 칸 폭 맞추기 -->
+            </div>
+            <ul id="dash-budgets" class="dash-list"></ul>            <!-- JS가 사용률 높은 카테고리 5개를 채움 -->
+        </div>
+
+        <div class="card">                                           <!-- 최근 거래 -->
+            <div class="page-header">
+                <h3 style="margin: 0;">최근 거래</h3>
+                <a th:href="@{/transactions}" class="muted">전체 보기 →</a>
+            </div>
+            <table class="table">
+                <tbody id="dash-transactions"></tbody>                <!-- JS가 최근 5건을 채움 -->
+            </table>
+        </div>
     </div>
 </main>
+
+<script th:src="@{/js/dashboard.js}" defer></script>                  <!-- 대시보드 동작 JS (2단계) -->
 </body>
 </html>
