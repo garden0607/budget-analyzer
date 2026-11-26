@@ -36,4 +36,8 @@ public class PageController {                         // 화면 주소 → HTML 
     public String notifications() {
         return "notifications";                       // templates/notifications.html (2단계에서 만듦)
     }
+    @GetMapping("/statistics")                        // 통계 화면 주소 (FR-13~15)
+    public String statistics() {
+        return "statistics";                          // templates/statistics.html (3단계에서 만듦)
+    }
 }
