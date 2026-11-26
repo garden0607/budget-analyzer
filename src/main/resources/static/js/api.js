@@ -91,3 +91,44 @@ function initHeader() {
 }
 
 initHeader();                                           // 파일이 실행되면 바로 헤더 동작 연결 (defer라 HTML이 다 그려진 뒤)
+// ----- 5. 새 예산 알림 표시: 저장 전후 안 읽은 알림을 비교해 토스트로 (FR-05, 거래·예산 화면 공통) -----
+
+// ----- 안 읽은 알림 조회 (실패하면 null: 알림 때문에 화면이 멈추지 않게) -----
+async function getUnreadNotifications() {
+    try {
+        return await apiFetch('/api/notifications?unreadOnly=true'); // { unreadCount, notifications(최신순) }
+    } catch (e) {
+        return null;                                   // 거래 저장은 이미 끝났으니 조용히 넘어감
+    }
+}
+
+// ----- 저장 전(before)과 비교해서 새로 생긴 알림만 띄우기 -----
+async function showNewAlerts(before) {
+    const after = await getUnreadNotifications();      // 저장 후 다시 조회
+    loadUnreadCount();                                 // api.js 함수: 헤더 🔔 숫자 바로 갱신
+    if (!before || !after) return;                     // 둘 중 하나라도 조회 실패면 비교 불가 → 끝
+
+    const added = after.unreadCount - before.unreadCount; // 늘어난 개수
+    if (added <= 0) return;                            // 안 늘었으면 새 알림 없음
+
+    after.notifications                                // 최신순 목록에서
+        .slice(0, added)                               // 앞에서부터 늘어난 개수만큼 = 이번에 생긴 알림
+        .forEach(n => showToast(n.message, n.type));   // 하나씩 띠로 표시
+}
+
+// ----- 토스트 띄우기: 4초 뒤 자동으로 사라짐 -----
+function showToast(message, type) {
+    let area = document.querySelector('.toast-area');  // 토스트 모아 둘 자리 찾기
+    if (!area) {                                       // 없으면 처음 한 번 만들기
+        area = document.createElement('div');
+        area.className = 'toast-area';
+        document.body.appendChild(area);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + (type === 'EXCEEDED' ? 'toast-danger' : 'toast-warning'); // 초과 빨강, 경고 주황
+    toast.textContent = '⚠️ ' + message;               // 서버가 만든 문구 (textContent로 안전하게)
+    area.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 4000);            // 4000ms(4초) 뒤에 이 띠 삭제
+}

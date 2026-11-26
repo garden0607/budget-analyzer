@@ -28,4 +28,8 @@ public class PageController {                         // 화면 주소 → HTML 
     public String transactions() {
         return "transactions";                        // templates/transactions.html (2단계에서 만듦)
     }
+    @GetMapping("/budgets")                           // 예산 관리 화면 주소 (S-06)
+    public String budgets() {
+        return "budgets";                             // templates/budgets.html (2단계에서 만듦)
+    }
 }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">               <!-- th: 문법 사용 선언 -->
+
+<!-- 공통 head 도장: 탭 제목 "예산 - 소비 분석 가계부" -->
+<head th:replace="~{fragments/layout :: head('예산')}"></head>
+
+<body>
+<!-- 공통 헤더 도장: 메뉴·🔔·로그아웃 + 토큰 없으면 로그인 화면으로 -->
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+
+    <!-- ① 제목 + 월 이동 + 전체 합계 -->
+    <div class="card">
+        <div class="page-header">                                    <!-- 왼쪽 제목, 오른쪽 월 이동 (거래 화면에서 만든 CSS) -->
+            <h2>예산 관리</h2>
+            <div class="month-nav">                                  <!-- 월 이동 묶음 (CSS는 다음 단계) -->
+                <button type="button" id="prev-month" class="btn btn-sm btn-outline">◀</button> <!-- 이전 달 -->
+                <strong id="month-label"></strong>                   <!-- "2026년 11월" (JS가 채움) -->
+                <button type="button" id="next-month" class="btn btn-sm btn-outline">▶</button> <!-- 다음 달 -->
+            </div>
+        </div>
+
+        <!-- 합계 줄: 예산을 정한 카테고리끼리만 더한 값 -->
+        <p class="summary">
+            예산 <strong id="total-budget">0원</strong>
+            · 사용 <strong id="total-spent">0원</strong>
+            · 잔여 <strong id="total-remaining">0원</strong>
+        </p>
+
+        <!-- 전체 사용률 막대 -->
+        <div class="usage">                                          <!-- 막대 + 숫자 한 줄 (CSS는 다음 단계) -->
+            <div class="usage-bar"><div id="total-bar" class="usage-fill"></div></div> <!-- 바깥 회색 틀 + 안쪽 채워지는 부분 -->
+            <span id="total-rate" class="usage-rate"></span>          <!-- "11%" 또는 "설정된 예산이 없습니다" -->
+        </div>
+
+        <p id="error-msg" class="error-msg"></p>                     <!-- 실패 문구 자리 -->
+    </div>
+
+    <!-- ② 카테고리별 현황 표 -->
+    <div class="card" style="margin-top: 16px;">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>카테고리</th>
+                <th class="text-right">예산</th>
+                <th class="text-right">사용</th>
+                <th class="text-right">잔여</th>
+                <th class="col-usage">사용률</th>                <!-- 막대가 들어갈 칸 (폭은 CSS) -->
+                <th>상태</th>
+                <th class="col-actions">관리</th>
+            </tr>
+            </thead>
+            <tbody id="budget-list"></tbody>                          <!-- JS가 지출 카테고리 줄을 채움 -->
+        </table>
+    </div>
+</main>
+
+<!-- ③ 예산 설정 모달 (금액 하나만 입력) -->
+<div id="budget-modal" class="modal" hidden>                          <!-- 처음엔 숨김 -->
+    <div class="modal-box">
+        <h3>예산 설정</h3>
+        <p id="budget-modal-desc" class="muted"></p>                  <!-- "2026년 11월 · 식비" (어느 예산인지 안내) -->
+
+        <form id="budget-form" novalidate>
+            <div class="form-group">
+                <label for="budget-amount">예산 금액</label>
+                <input type="number" id="budget-amount"
+                       min="1" max="10000000" placeholder="원 단위로 입력"> <!-- DTO: 1 ~ 1,000만 원 -->
+            </div>
+
+            <p id="budget-modal-error" class="error-msg"></p>          <!-- 모달 안 에러 문구 -->
+
+            <div class="modal-actions">
+                <button type="button" id="budget-cancel" class="btn btn-outline">취소</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/budgets.js}" defer></script>                    <!-- 예산 화면 동작 JS (4단계에서 만듦) -->
+</body>
+</html>
