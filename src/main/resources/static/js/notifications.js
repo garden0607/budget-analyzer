@@ -67,7 +67,16 @@ function createItem(n) {
     time.className = 'notice-time';
     time.textContent = formatDateTime(n.createdAt);                // "2026-11-26 16:29"
 
-    li.append(dot, type, message, time);
+        const deleteBtn = document.createElement('button');            // 줄마다 삭제 버튼
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'btn btn-sm btn-outline';
+        deleteBtn.textContent = '삭제';
+        deleteBtn.addEventListener('click', (event) => {
+            event.stopPropagation();                                   // 클릭이 줄(li)까지 전달되지 않게 → 읽음 처리가 같이 실행되는 것 방지
+            deleteNotification(n);
+        });
+
+        li.append(dot, type, message, time, deleteBtn);                // 줄 끝에 삭제 버튼 붙이기
 
     if (!n.isRead) {                                               // 안 읽은 알림만 클릭하면 읽음 처리
         li.addEventListener('click', () => markAsRead(n.id));
@@ -99,3 +108,28 @@ filterAllBtn.addEventListener('click', () => setFilter(false));
 filterUnreadBtn.addEventListener('click', () => setFilter(true));
 
 loadNotifications();                                               // 화면이 열리면 전체 알림부터
+// ----- 알림 하나 삭제: 확인 → DELETE → 다시 그리기 -----
+async function deleteNotification(n) {
+    if (!confirm(`이 알림을 삭제할까요?\n${n.message}`)) return;    // 무엇을 지우는지 보여 주고 확인
+    errorMsg.textContent = '';
+    try {
+        await apiFetch(`/api/notifications/${n.id}`, { method: 'DELETE' }); // 성공하면 204 → null
+        await loadNotifications();                                 // 목록·개수 다시 그리기
+        loadUnreadCount();                                         // 안 읽은 걸 지웠을 수 있으니 🔔 갱신
+    } catch (e) {
+        errorMsg.textContent = e.message;
+    }
+}
+
+// ----- 읽은 알림 모두 삭제: 확인 → DELETE /read → 지운 개수 안내 → 다시 그리기 -----
+document.getElementById('delete-read').addEventListener('click', async () => {
+    if (!confirm('읽은 알림을 모두 삭제할까요?\n안 읽은 알림은 남습니다.')) return;
+    errorMsg.textContent = '';
+    try {
+        const data = await apiFetch('/api/notifications/read', { method: 'DELETE' }); // { deletedCount: 3 }
+        showToast(`읽은 알림 ${data.deletedCount}개를 삭제했습니다.`, 'INFO');        // api.js 토스트 재사용
+        await loadNotifications();
+    } catch (e) {
+        errorMsg.textContent = e.message;
+    }
+});

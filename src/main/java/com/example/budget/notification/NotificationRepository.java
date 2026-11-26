@@ -14,4 +14,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Optional<Notification> findByIdAndUserId(Long id, Long userId);      // 내 알림만 찾기 → 읽음 처리 시 남의 알림 차단
     List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(Long userId);   // 내 안 읽은 알림만 최신순 → "안 읽은 것만 보기"
+    long deleteByUserIdAndIsReadTrue(Long userId);   // 내 알림 중 읽은 것만 전부 삭제, 지운 개수를 돌려줌 → "읽은 알림 모두 삭제"
 }

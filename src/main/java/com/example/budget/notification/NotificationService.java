@@ -41,4 +41,18 @@ public class NotificationService {
         notification.markAsRead();                        // isRead = true (변경 감지로 자동 UPDATE)
         return NotificationResponse.from(notification);   // 바뀐 알림 돌려줌
     }
+    // ───────────── 알림 하나 삭제 ─────────────
+    @Transactional   // 삭제는 DB를 바꾸므로 읽기 전용 해제
+    public void delete(Long userId, Long notificationId) {
+        Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId) // 본인 알림인지 확인
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND));         // 남의 것이거나 없으면 404
+
+        notificationRepository.delete(notification);   // 확인된 알림만 삭제
+    }
+
+    // ───────────── 읽은 알림 모두 삭제 ─────────────
+    @Transactional   // 삭제는 DB를 바꾸므로 읽기 전용 해제 (deleteBy 메서드는 트랜잭션이 꼭 필요)
+    public long deleteRead(Long userId) {
+        return notificationRepository.deleteByUserIdAndIsReadTrue(userId);   // 내 읽은 알림만 삭제, 지운 개수 돌려줌
+    }
 }

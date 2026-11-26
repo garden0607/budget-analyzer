@@ -18,7 +18,10 @@
             </div>
         </div>
 
-        <p class="summary">안 읽은 알림 <strong id="unread-total">0</strong>개</p> <!-- JS가 숫자를 채움 -->
+        <div class="page-header" style="margin-bottom: 0;">          <!-- 왼쪽 개수, 오른쪽 모두 삭제 버튼 -->
+            <p class="summary" style="margin: 0;">안 읽은 알림 <strong id="unread-total">0</strong>개</p>
+            <button type="button" id="delete-read" class="btn btn-sm btn-outline">읽은 알림 모두 삭제</button>
+        </div>
         <p id="error-msg" class="error-msg"></p>                     <!-- 실패 문구 자리 -->
 
         <ul id="notification-list" class="notice-list"></ul>         <!-- JS가 알림을 한 줄씩 채움 -->
