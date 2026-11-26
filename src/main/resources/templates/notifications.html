@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">               <!-- th: 문법 사용 선언 -->
+
+<!-- 공통 head 도장: 탭 제목 "알림 - 소비 분석 가계부" -->
+<head th:replace="~{fragments/layout :: head('알림')}"></head>
+
+<body>
+<!-- 공통 헤더 도장 -->
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="card">
+        <div class="page-header">                                    <!-- 왼쪽 제목, 오른쪽 보기 전환 -->
+            <h2>알림</h2>
+            <div class="tab-group">                                  <!-- 전환 버튼 묶음 -->
+                <button type="button" id="filter-all" class="btn btn-sm btn-outline active">전체</button>      <!-- 처음엔 전체가 선택됨 -->
+                <button type="button" id="filter-unread" class="btn btn-sm btn-outline">안 읽은 것만</button>
+            </div>
+        </div>
+
+        <p class="summary">안 읽은 알림 <strong id="unread-total">0</strong>개</p> <!-- JS가 숫자를 채움 -->
+        <p id="error-msg" class="error-msg"></p>                     <!-- 실패 문구 자리 -->
+
+        <ul id="notification-list" class="notice-list"></ul>         <!-- JS가 알림을 한 줄씩 채움 -->
+    </div>
+</main>
+
+<script th:src="@{/js/notifications.js}" defer></script>             <!-- 알림 화면 동작 JS (3단계) -->
+</body>
+</html>

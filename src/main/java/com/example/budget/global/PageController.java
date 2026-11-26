@@ -32,4 +32,8 @@ public class PageController {                         // 화면 주소 → HTML 
     public String budgets() {
         return "budgets";                             // templates/budgets.html (2단계에서 만듦)
     }
+    @GetMapping("/notifications")                     // 알림 화면 주소 (헤더 🔔 클릭 시)
+    public String notifications() {
+        return "notifications";                       // templates/notifications.html (2단계에서 만듦)
+    }
 }
