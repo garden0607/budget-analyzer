@@ -9,6 +9,7 @@ public record RecurringResponse(
 ) {
     // 정기 지출 한 건 = 판단 이유까지 담은 한 줄
     public record Item(
+            Long categoryId,          // 카테고리 id → [아니에요] 제외 요청에 사용
             String name,              // 이름: 최근 거래 메모, 없으면 카테고리 이름 ("넷플릭스")
             String categoryName,      // 카테고리 이름 ("구독")
             int amount,               // 최근 금액 (인상됐으면 오른 금액)

@@ -125,6 +125,7 @@ public class RecurringDetector {
         }
 
         return new RecurringResponse.Item(
+                last.categoryId(),                // ★ 추가: 카테고리 id
                 name,
                 last.categoryName(),
                 last.amount(),                    // 최근 금액 (인상됐으면 오른 금액)

@@ -280,7 +280,15 @@ async function loadRecurring() {
             const amount = document.createElement('strong');
             amount.className = 'amount-expense';
             amount.textContent = formatMoney(item.amount);
-            head.append(left, amount);
+            const right = document.createElement('span');      // 오른쪽 묶음: 금액 + [아니에요]
+            const notBtn = document.createElement('button');   // [아니에요] 버튼
+            notBtn.type = 'button';
+            notBtn.className = 'btn btn-sm btn-outline';       // 작은 흰 버튼 (표 안 버튼과 같은 모양)
+            notBtn.textContent = '아니에요';
+            notBtn.title = '정기 지출이 아니면 눌러 주세요. 다음부터 표시하지 않습니다.'; // 마우스를 올리면 보이는 설명
+            notBtn.addEventListener('click', () => excludeRecurring(item)); // 클릭 → 이 항목 제외
+            right.append(amount, notBtn);                      // 금액 옆에 버튼
+            head.append(left, right);                          // 윗줄: 왼쪽 이름 · 오른쪽 금액+버튼
 
             const reason = document.createElement('div');       // 아랫줄: 판단 이유
             reason.className = 'recurring-reason';
@@ -295,3 +303,19 @@ async function loadRecurring() {
 }
 
 loadRecurring();                                                // 화면이 열릴 때 한 번만 (달을 바꿔도 다시 안 부름)
+// ----- "아니에요": 확인 → 제외 API → 안내 → 목록 다시 그리기 -----
+async function excludeRecurring(item) {
+    const ok = confirm(`'${item.name}'은(는) 정기 지출이 아닌가요?\n다음부터 이 목록에 표시하지 않습니다.`);
+    if (!ok) return;                                           // 취소면 아무것도 안 함
+
+    try {
+        await apiFetch('/api/statistics/recurring/exclusions', {
+            method: 'POST',
+            body: { categoryId: item.categoryId, name: item.name }, // 묶음의 이름표 (카테고리 id + 이름)
+        });
+        showToast(`'${item.name}'을(를) 정기 지출 목록에서 제외했습니다.`, 'INFO'); // api.js 토스트 재사용
+        await loadRecurring();                                 // 목록·월 합계 다시 그리기
+    } catch (e) {
+        errorMsg.textContent = e.message;
+    }
+}

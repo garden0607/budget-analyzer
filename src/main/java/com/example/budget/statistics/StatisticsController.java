@@ -7,11 +7,10 @@ import lombok.RequiredArgsConstructor;                            // final 필�
 import org.springframework.format.annotation.DateTimeFormat;      // 주소의 "2026-11" 글자를 YearMonth로 바꾸는 형식 지정
 import org.springframework.http.ResponseEntity;                   // 상태 코드(200 등) + 내용을 담는 봉투
 import org.springframework.security.core.annotation.AuthenticationPrincipal; // 토큰에서 회원 id 꺼내기
-import org.springframework.web.bind.annotation.GetMapping;        // GET 요청 주소 연결
-import org.springframework.web.bind.annotation.RequestMapping;    // 클래스 공통 주소
-import org.springframework.web.bind.annotation.RequestParam;      // 주소 뒤 ?month=... 값 받기
-import org.springframework.web.bind.annotation.RestController;    // API 창구 표시
+import org.springframework.web.bind.annotation.*;
 import com.example.budget.statistics.dto.RecurringResponse;   // 정기 지출 탐지 결과
+import com.example.budget.statistics.dto.RecurringExcludeRequest;   // 제외 요청 상자
+import jakarta.validation.Valid;                                    // DTO 검증 실행
 
 import java.time.YearMonth;   // 연·월 (2026-11)
 
@@ -55,6 +54,14 @@ public class StatisticsController {
     public ResponseEntity<RecurringResponse> getRecurring(
             @AuthenticationPrincipal Long userId) {                    // 토큰에서 꺼낸 회원 id → 내 거래만
         return ResponseEntity.ok(recurringService.getRecurring(userId)); // 200 + 정기 지출 목록 + 월 합계
+    }
+    // 정기 지출 제외("아니에요"): POST /api/statistics/recurring/exclusions
+    @PostMapping("/recurring/exclusions")
+    public ResponseEntity<Void> excludeRecurring(
+            @AuthenticationPrincipal Long userId,                       // 토큰의 회원 id → 내 제외 목록에만 저장
+            @Valid @RequestBody RecurringExcludeRequest request) {      // { categoryId, name } + 검증
+        recurringService.exclude(userId, request.categoryId(), request.name()); // 제외 목록에 저장 (이미 있으면 그대로)
+        return ResponseEntity.noContent().build();                      // 204 (돌려줄 내용 없음)
     }
 }
 // 세 주소 모두 /api/auth/** 가 아니라서 토큰이 없으면 401 (SecurityConfig 규칙)
