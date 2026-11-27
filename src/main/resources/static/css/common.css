@@ -320,3 +320,17 @@ a { color: inherit; text-decoration: none; } /* 링크 밑줄·파란색 제거,
 .dash-list li { margin-top: 10px; }        /* 줄 사이 간격 */
 .dash-list .usage { margin-top: 0; }       /* 막대 위 여백 제거 */
 .dash-list .usage > span:first-child { width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* 카테고리 이름 칸: 길면 … 처리 */
+/* ===== 정기 지출 목록 ===== */
+.recurring-list { list-style: none; margin: 0; padding: 0; } /* 목록 기본 점·들여쓰기 제거 */
+.recurring-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);/* 항목 사이 구분선 */
+}
+.recurring-item:last-child { border-bottom: none; } /* 마지막 항목은 선 없이 */
+.recurring-head {
+    display: flex;                         /* 이름은 왼쪽, 금액은 오른쪽 */
+    justify-content: space-between;
+    align-items: center;
+}
+.recurring-name { font-weight: 600; }      /* 이름 굵게 */
+.recurring-reason { font-size: 13px; color: var(--muted); margin-top: 4px; } /* 판단 이유: 작고 흐리게 */

@@ -79,4 +79,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<CategorySpending> sumExpenseByCategory(@Param("userId") Long userId,            // 내 거래만
                                                 @Param("startDate") LocalDate startDate, // 그 달 1일
                                                 @Param("endDate") LocalDate endDate);    // 그 달 말일
+    // 정기 지출 탐지용: 기간 내 내 지출 거래를 날짜순으로 (카테고리 이름도 같이 가져옴)
+    @Query("""
+            SELECT t FROM Transaction t
+            JOIN FETCH t.category c
+            WHERE t.user.id = :userId
+              AND c.type = com.example.budget.category.TransactionType.EXPENSE
+              AND t.transactionDate BETWEEN :startDate AND :endDate
+            ORDER BY t.transactionDate
+            """)
+    List<Transaction> findExpensesBetween(@Param("userId") Long userId,            // 내 거래만
+                                          @Param("startDate") LocalDate startDate, // 12개월 전
+                                          @Param("endDate") LocalDate endDate);    // 오늘 (미래 날짜 거래는 제외)
 }

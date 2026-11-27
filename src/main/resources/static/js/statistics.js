@@ -233,3 +233,65 @@ function renderCompareRows(items) {
         compareList.appendChild(tr);
     });
 }
+// ===================== ④ 정기 지출 자동 탐지 결과 =====================
+const recurringList = document.getElementById('recurring-list');    // 목록 (ul)
+const recurringTotal = document.getElementById('recurring-total');  // "매달 약 83,400원"
+
+// 판단 이유 문장 만들기: 서버가 준 재료를 조합
+function buildReason(item) {
+    let reason = `최근 ${item.months}개월 연속, 매달 ${item.dayOfMonth}일쯤 결제`; // 기본 이유
+    if (item.previousAmount !== null) {                         // 금액이 바뀐 적이 있으면
+        const word = item.amount > item.previousAmount ? '인상' : '인하';       // 올랐는지 내렸는지
+        reason += ` (${formatMonth(item.changedMonth)}에 ${formatMoney(item.previousAmount)} → ${formatMoney(item.amount)} ${word})`;
+    }
+    return reason;
+}
+
+async function loadRecurring() {
+    try {
+        const data = await apiFetch('/api/statistics/recurring'); // { items, monthlyTotal } (항상 오늘 기준)
+        recurringList.replaceChildren();
+
+        if (data.items.length === 0) {                          // 아직 탐지된 게 없으면
+            recurringTotal.textContent = '';
+            const li = document.createElement('li');
+            li.className = 'muted';
+            li.textContent = '아직 매달 반복되는 지출이 없습니다.';
+            recurringList.appendChild(li);
+            return;
+        }
+
+        recurringTotal.textContent = `매달 약 ${formatMoney(data.monthlyTotal)}`;
+
+        data.items.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'recurring-item';
+
+            const head = document.createElement('div');         // 윗줄: 이름 · 카테고리 ... 금액
+            head.className = 'recurring-head';
+            const left = document.createElement('span');
+            const name = document.createElement('span');
+            name.className = 'recurring-name';
+            name.textContent = item.name;                       // 사용자 입력값(메모) → textContent
+            const category = document.createElement('span');
+            category.className = 'tag';                         // 작은 꼬리표 (카테고리 화면에서 만든 CSS)
+            category.textContent = item.categoryName;
+            left.append(name, category);
+            const amount = document.createElement('strong');
+            amount.className = 'amount-expense';
+            amount.textContent = formatMoney(item.amount);
+            head.append(left, amount);
+
+            const reason = document.createElement('div');       // 아랫줄: 판단 이유
+            reason.className = 'recurring-reason';
+            reason.textContent = buildReason(item);
+
+            li.append(head, reason);
+            recurringList.appendChild(li);
+        });
+    } catch (e) {
+        errorMsg.textContent = e.message;
+    }
+}
+
+loadRecurring();                                                // 화면이 열릴 때 한 번만 (달을 바꿔도 다시 안 부름)
